@@ -5,8 +5,20 @@ const { Op } = require('sequelize');
 
 router.get('/', authMiddleware, async (req, res) => {
   try {
+
+    const whereClause = { user_id: req.user.id };
+
+    if (req.query.type) {
+      whereClause.type = req.query.type;
+    }
+
+    if (req.query.category_id) {
+      whereClause.category_id = req.query.category_id;
+    }
+    
+    
     const transactions = await Transaction.findAll({
-      where: { user_id: req.user.id },
+      where: whereClause,
       include: [{ model: Category, attributes: ['name', 'type'] }],
       order: [['date', 'DESC']],
     });
