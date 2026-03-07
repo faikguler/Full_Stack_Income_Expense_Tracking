@@ -238,6 +238,7 @@ function setupDashboard() {
     }
     loadCategories();
     loadTransactions();
+    setupEditForm();
 
     const filterBtn = document.getElementById('applyFilter');
     if (filterBtn) {
@@ -369,21 +370,4 @@ function setupEditForm() {
       alert('Server error');
     }
   });
-}
-
-
-function setupDashboard() {
-  if (!getToken()) {
-    window.location.href = '/login.html';
-    return;
-  }
-  loadCategories();
-  loadTransactions();
-  setupEditForm();
-
-  const filterBtn = document.getElementById('applyFilter');
-  if (filterBtn) {
-    filterBtn.addEventListener('click', loadTransactions);
-  }
-
 }
