@@ -156,10 +156,24 @@ async function loadTransactions() {
     try {
         const type = document.getElementById('filterType')?.value || '';
         const categoryId = document.getElementById('filterCategory')?.value || '';
-        let url = `${API_BASE}/transactions`;
+        const startDate = document.getElementById('startDate')?.value || '';
+        const endDate = document.getElementById('endDate')?.value || '';
+
+        let url;
         const params = new URLSearchParams();
+
+        if (startDate && endDate) {
+        url = `${API_BASE}/transactions/report/range`;
+        params.append('startDate', startDate);
+        params.append('endDate', endDate);
         if (type) params.append('type', type);
         if (categoryId) params.append('category_id', categoryId);
+        } else {
+        url = `${API_BASE}/transactions`;
+        if (type) params.append('type', type);
+        if (categoryId) params.append('category_id', categoryId);
+        }
+
         if (params.toString()) url += '?' + params.toString();
 
         const res = await fetch(url, { headers: authHeader() });
@@ -171,11 +185,24 @@ async function loadTransactions() {
             }
             throw new Error('Failed to load transactions');
         }
-        const transactions = await res.json();
+        const data = await res.json();
+        
+
+        let transactions = [];
+        if (Array.isArray(data)) {
+            transactions = data;
+        } else if (data && Array.isArray(data.transactions)) {
+            transactions = data.transactions;
+        } else {
+            console.warn('Unexpected response format:', data);
+        }
+        
+        
         renderTransactions(transactions);
         calculateSummary(transactions);
     } catch (err) {
         console.error(err);
+        alert('Error loading transactions: ' + err.message);
     }
 }
 
