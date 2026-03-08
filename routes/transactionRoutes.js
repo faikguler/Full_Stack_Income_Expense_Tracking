@@ -96,14 +96,25 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 
 router.get('/report/range', authMiddleware, async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
-    const transactions = await Transaction.findAll({
-      where: {
-        user_id: req.user.id,
-        date: {
-          [Op.between]: [startDate, endDate],
-        },
+    const { startDate, endDate, type, category_id } = req.query;
+    
+    const whereClause = {
+      user_id: req.user.id,
+      date: {
+        [Op.between]: [startDate, endDate],
       },
+    };
+    
+    if (type) {
+      whereClause.type = type;
+    }
+    
+    if (category_id) {
+      whereClause.category_id = category_id;
+    }
+    
+    const transactions = await Transaction.findAll({
+      where: whereClause,
       include: [{ model: Category, attributes: ['name'] }],
       order: [['date', 'ASC']],
     });
